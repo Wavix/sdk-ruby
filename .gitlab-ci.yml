@@ -1,0 +1,22 @@
+image: ruby:3.0.3
+
+cache:
+  key: $CI_COMMIT_REF_SLUG
+  paths:
+    - vendor/ruby
+
+variables:
+  RAILS_ENV: test
+
+
+before_script:
+  - gem install bundler --version '~> 1.7'
+  - bundle install -j $(nproc) --path vendor/ruby
+
+rspec:
+  script:
+    - bundle exec rspec spec
+
+rubocop:
+  script:
+    - bundle exec rubocop

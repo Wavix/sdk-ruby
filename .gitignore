@@ -1,0 +1,4 @@
+Gemfile.lock
+/.bundle/
+wavix-sdk-ruby-1.0.0.gem
+.idea
