@@ -120,7 +120,7 @@ Or short version
 You can specify path to save the file
 
 ```
-WavixApi::V1::Billing::Invoices::Find.new(id: 1).call(save_path: 'path/to/file.pdf')
+WavixApi::V1::Billing::Invoices::Find.new(id: 1, save_path: 'path/to/file.pdf').call
 ```
 
 ## Papers creation with file
