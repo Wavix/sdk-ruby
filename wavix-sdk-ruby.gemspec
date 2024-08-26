@@ -5,7 +5,7 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 
 Gem::Specification.new do |s|
   s.name          = 'wavix-sdk-ruby'
-  s.version       = '1.0.0'
+  s.version       = '1.0.1'
   s.authors       = ['Wavix']
   s.email         = ['support@wavix.com']
   s.summary       = 'Wavix Public API SDK for Ruby'
