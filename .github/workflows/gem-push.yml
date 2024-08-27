@@ -28,7 +28,16 @@ jobs:
         chmod 0600 $HOME/.gem/credentials
         printf -- "---\n:github: ${GEM_HOST_API_KEY}\n" > $HOME/.gem/credentials
         gem build *.gemspec
-        gem push --KEY github --host https://rubygems.pkg.github.com/${OWNER} *.gem
+        set +e
+        output=$(gem push --KEY github --host https://rubygems.pkg.github.com/${OWNER} *.gem 2>&1)
+        exit_code=$?
+        set -e
+        if [ $exit_code -eq 0 ] || [[ $output == *"has already been pushed"* ]]; then
+          echo "Gem push succeeded or version already exists."
+        else
+          echo "Gem push failed with an error."
+          exit 1
+        fi
       env:
         GEM_HOST_API_KEY: "Bearer ${{secrets.GITHUB_TOKEN}}"
         OWNER: ${{ github.repository_owner }}
