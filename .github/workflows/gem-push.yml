@@ -15,40 +15,50 @@ jobs:
       packages: write
 
     steps:
-    - uses: actions/checkout@v4
-    - name: Set up Ruby 2.5.5
-      uses: ruby/setup-ruby@v1
-      with:
-        ruby-version: 2.5.5
+      # - uses: actions/checkout@v4
+      - uses: actions/checkout@v3
 
-    - name: Publish to GPR
-      run: |
-        mkdir -p $HOME/.gem
-        touch $HOME/.gem/credentials
-        chmod 0600 $HOME/.gem/credentials
-        printf -- "---\n:github: ${GEM_HOST_API_KEY}\n" > $HOME/.gem/credentials
-        gem build *.gemspec
-        set +e
-        output=$(gem push --key github --host https://rubygems.pkg.github.com/${OWNER} *.gem 2>&1)
-        exit_code=$?
-        set -e
-        if [ $exit_code -eq 0 ] || [[ $output == *"has already been pushed"* ]]; then
-          echo "Gem push succeeded or version already exists."
-        else
-          echo "Gem push failed with an error."
-          exit 1
-        fi
-      env:
-        GEM_HOST_API_KEY: "${{secrets.GITHUB_TOKEN}}"
-        OWNER: ${{ github.repository_owner }}
+      - name: Set up Ruby 2.5.5
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 2.5.5
 
-    - name: Publish to RubyGems
-      run: |
-        mkdir -p $HOME/.gem
-        touch $HOME/.gem/credentials
-        chmod 0600 $HOME/.gem/credentials
-        printf -- "---\n:rubygems_api_key: ${RUBYGEMS_AUTH_TOKEN}\n" > $HOME/.gem/credentials
-        gem build *.gemspec
-        gem push *.gem
-      env:
-        RUBYGEMS_AUTH_TOKEN: "${{secrets.RUBYGEMS_AUTH_TOKEN}}"
+      - name: Release Gem
+        if: contains(github.ref, 'refs/tags/v')
+        uses: cadwallion/publish-rubygems-action@master
+        env:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+          RUBYGEMS_API_KEY: ${{secrets.RUBYGEMS_AUTH_TOKEN}}
+          RELEASE_COMMAND: rake release
+
+      # - name: Publish to GPR
+      #   run: |
+      #     mkdir -p $HOME/.gem
+      #     touch $HOME/.gem/credentials
+      #     chmod 0600 $HOME/.gem/credentials
+      #     printf -- "---\n:github: ${GEM_HOST_API_KEY}\n" > $HOME/.gem/credentials
+      #     gem build *.gemspec
+      #     set +e
+      #     output=$(gem push --KEY github --host https://rubygems.pkg.github.com/${OWNER} *.gem 2>&1)
+      #     exit_code=$?
+      #     set -e
+      #     if [ $exit_code -eq 0 ] || [[ $output == *"has already been pushed"* ]]; then
+      #       echo "Gem push succeeded or version already exists."
+      #     else
+      #       echo "Gem push failed with an error."
+      #       exit 1
+      #     fi
+      #   env:
+      #     GEM_HOST_API_KEY: "Bearer ${{secrets.GITHUB_TOKEN}}"
+      #     OWNER: ${{ github.repository_owner }}
+
+      # - name: Publish to RubyGems
+      #   run: |
+      #     mkdir -p $HOME/.gem
+      #     touch $HOME/.gem/credentials
+      #     chmod 0600 $HOME/.gem/credentials
+      #     printf -- "---\n:rubygems_api_key: ${RUBYGEMS_AUTH_TOKEN}\n" > $HOME/.gem/credentials
+      #     gem build *.gemspec
+      #     gem push *.gem
+      #   env:
+      #     RUBYGEMS_AUTH_TOKEN: "${{secrets.RUBYGEMS_AUTH_TOKEN}}"
