@@ -45,12 +45,12 @@ jobs:
 
       - name: Publish to RubyGems
         run: |
-            gem build
-            cat << EOF > ~/.gem/credentials
-            ---
-            :rubygems_api_key: ${RUBYGEMS_AUTH_TOKEN}
-            EOF
-            chmod 0600 ~/.gem/credentials
-          env:
-            RUBYGEMS_AUTH_TOKEN: ${{ secrets.RUBYGEMS_AUTH_TOKEN }}
-        - run: gem push *.gem
+          gem build
+          cat << EOF > ~/.gem/credentials
+          ---
+          :rubygems_api_key: ${RUBYGEMS_AUTH_TOKEN}
+          EOF
+          chmod 0600 ~/.gem/credentials
+          gem push *.gem
+        env:
+          RUBYGEMS_AUTH_TOKEN: ${{ secrets.RUBYGEMS_AUTH_TOKEN }}
