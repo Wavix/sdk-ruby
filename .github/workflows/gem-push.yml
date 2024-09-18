@@ -49,8 +49,6 @@ jobs:
           touch $HOME/.gem/credentials
           chmod 0600 ~/.gem/credentials
           printf -- "---\n:rubygems_api_key: ${RUBYGEMS_AUTH_TOKEN}\n" > $HOME/.gem/credentials
-          cat ~/.gem/credentials
-          echo "RUBYGEMS_AUTH_TOKEN: ${RUBYGEMS_AUTH_TOKEN}"
           gem build *.gemspec
           gem push *.gem
         env:
