@@ -11,7 +11,7 @@ jobs:
     name: Build + Publish
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: write
       packages: write
 
     steps:
@@ -29,7 +29,7 @@ jobs:
         printf -- "---\n:github: ${GEM_HOST_API_KEY}\n" > $HOME/.gem/credentials
         gem build *.gemspec
         set +e
-        output=$(gem push --KEY github --host https://rubygems.pkg.github.com/${OWNER} *.gem 2>&1)
+        output=$(gem push --key github --host https://rubygems.pkg.github.com/${OWNER} *.gem 2>&1)
         exit_code=$?
         set -e
         if [ $exit_code -eq 0 ] || [[ $output == *"has already been pushed"* ]]; then
@@ -39,7 +39,7 @@ jobs:
           exit 1
         fi
       env:
-        GEM_HOST_API_KEY: "Bearer ${{secrets.GITHUB_TOKEN}}"
+        GEM_HOST_API_KEY: "${{secrets.GITHUB_TOKEN}}"
         OWNER: ${{ github.repository_owner }}
 
     - name: Publish to RubyGems
@@ -47,8 +47,8 @@ jobs:
         mkdir -p $HOME/.gem
         touch $HOME/.gem/credentials
         chmod 0600 $HOME/.gem/credentials
-        printf -- "---\n:rubygems_api_key: ${GEM_HOST_API_KEY}\n" > $HOME/.gem/credentials
+        printf -- "---\n:rubygems_api_key: ${RUBYGEMS_AUTH_TOKEN}\n" > $HOME/.gem/credentials
         gem build *.gemspec
         gem push *.gem
       env:
-        GEM_HOST_API_KEY: "${{secrets.RUBYGEMS_AUTH_TOKEN}}"
+        RUBYGEMS_AUTH_TOKEN: "${{secrets.RUBYGEMS_AUTH_TOKEN}}"
