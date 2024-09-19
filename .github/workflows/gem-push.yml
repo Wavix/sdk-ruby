@@ -13,6 +13,7 @@ jobs:
     permissions:
       contents: write
       packages: write
+    if: github.ref == 'refs/heads/main'
 
     steps:
       - uses: actions/checkout@v4
