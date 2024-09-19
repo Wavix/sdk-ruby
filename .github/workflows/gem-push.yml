@@ -35,7 +35,7 @@ jobs:
           set -e
           if [ $exit_code -eq 0 ]; then
             echo "Gem push succeeded."
-          elsif [[ $output == *"has already been pushed"* ]]; then
+          elsif [[ $output == *"has already been pushed"* ]]
             echo "Gem version already exists."
           else
             echo $output
@@ -58,7 +58,7 @@ jobs:
           set -e
           if [ $exit_code -eq 0 ]; then
             echo "Gem publish succeeded."
-          elif [[ $output == *"Repushing of gem versions is not allowed."* ]]; then
+          elif [[ $output == *"Repushing of gem versions is not allowed."* ]]
             echo "Gem version already exists."
           else
             echo $output
