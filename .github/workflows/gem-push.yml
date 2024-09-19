@@ -33,8 +33,10 @@ jobs:
           output=$(gem push --KEY github --host https://rubygems.pkg.github.com/${OWNER} *.gem 2>&1)
           exit_code=$?
           set -e
-          if [ $exit_code -eq 0 ] || [[ $output == *"has already been pushed"* ]]; then
-            echo "Gem push succeeded or version already exists."
+          if [ $exit_code -eq 0 ]; then
+            echo "Gem push succeeded."
+          elsif [[ $output == *"has already been pushed"* ]]; then
+            echo "Gem version already exists."
           else
             echo $output
             exit 1
@@ -50,6 +52,17 @@ jobs:
           chmod 0600 ~/.gem/credentials
           printf -- "---\n:rubygems_api_key: ${RUBYGEMS_AUTH_TOKEN}\n" > $HOME/.gem/credentials
           gem build *.gemspec
-          gem push *.gem
+          set +e
+          output=$(gem push *.gem>&1)
+          exit_code=$?
+          set -e
+          if [ $exit_code -eq 0 ]; then
+            echo "Gem publish succeeded."
+          elsif [[ $output == *"Repushing of gem versions is not allowed."* ]]; then
+            echo "Gem version already exists."
+          else
+            echo $output
+            exit 1
+          fi
         env:
           RUBYGEMS_AUTH_TOKEN: "${{secrets.RUBYGEMS_AUTH_TOKEN}}"
