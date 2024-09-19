@@ -33,7 +33,7 @@ jobs:
           output=$(gem push --KEY github --host https://rubygems.pkg.github.com/${OWNER} *.gem 2>&1)
           exit_code=$?
           set -e
-          if [ $exit_code -eq 0 ]; then
+          if [[ $exit_code == 0 ]]; then
             echo "Gem push succeeded."
           elsif [[ $output == *"has already been pushed"* ]]; then
             echo "Gem version already exists."
@@ -56,7 +56,7 @@ jobs:
           output=$(gem push *.gem 2>&1)
           exit_code=$?
           set -e
-          if [ $exit_code -eq 0 ]; then
+          if [[ $exit_code == 0 ]]; then
             echo "Gem publish succeeded."
           elif [[ $output == *"Repushing of gem versions is not allowed."* ]]; then
             echo "Gem version already exists."
