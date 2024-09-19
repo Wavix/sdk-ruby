@@ -17,6 +17,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Check branch name
+        run: |
+          echo "Current branch: ${{ github.ref }}"
+
       - name: Set up Ruby 2.5.5
         uses: ruby/setup-ruby@v1
         with:
