@@ -1,0 +1,77 @@
+name: Ruby Gem
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    name: Build + Publish
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check branch name
+        run: |
+          echo "Current branch: ${{ github.ref }}"
+
+      - name: Set up Ruby 2.5.5
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 2.5.5
+
+      - name: Publish to GPR
+        run: |
+          mkdir -p $HOME/.gem
+          touch $HOME/.gem/credentials
+          chmod 0600 $HOME/.gem/credentials
+          printf -- "---\n:github: ${GEM_HOST_API_KEY}\n" > $HOME/.gem/credentials
+          gem build *.gemspec
+          
+          set +e
+          output=$(gem push --KEY github --host https://rubygems.pkg.github.com/${OWNER} *.gem 2>&1)
+          exit_code=$?
+          set -e
+          
+          if [ $exit_code -eq 0 ] ; then
+            echo "Gem push succeeded."
+          elif [[ $output == *"has already been pushed"* ]] ; then
+            echo "Gem version already exists."
+          else
+            echo $output
+            exit 1
+          fi
+        env:
+          GEM_HOST_API_KEY: "Bearer ${{secrets.GITHUB_TOKEN}}"
+          OWNER: ${{ github.repository_owner }}
+
+      - name: Publish to RubyGems
+        run: |
+          mkdir -p $HOME/.gem
+          touch $HOME/.gem/credentials
+          chmod 0600 $HOME/.gem/credentials
+          printf -- "---\n:rubygems_api_key: ${RUBYGEMS_AUTH_TOKEN}\n" > $HOME/.gem/credentials
+          gem build *.gemspec
+          
+          set +e
+          output=$(gem push *.gem 2>&1)
+          exit_code=$?
+          set -e
+
+          if [ $exit_code -eq 0 ] ; then
+            echo "Gem publish succeeded."
+          elif [[ $output == *"Repushing of gem versions is not allowed."* ]] ; then
+            echo "Gem version already exists."
+          else
+            echo $output
+            exit 1
+          fi
+        env:
+          RUBYGEMS_AUTH_TOKEN: "${{secrets.RUBYGEMS_AUTH_TOKEN}}"
